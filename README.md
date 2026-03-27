@@ -6,8 +6,6 @@
 
 Projekt buduje i porównuje trzy estymatory OPE (Direct Method → IPS → Doubly Robust), które pozwalają ocenić czy inna polityka decyzyjna byłaby lepsza — z korekcją biasu wynikającego z tego, że dane historyczne nie były zbierane losowo.
 
-Pipeline wchodzi bezpośrednio jako sekcja **Experiments** do projektu badawczego *"Causally Adjusted Valuation of Progressive Passes in Football"* — cel NeurIPS 2026 Workshop w Sydney.
-
 ---
 
 ## Problem
