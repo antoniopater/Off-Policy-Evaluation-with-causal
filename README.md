@@ -191,6 +191,22 @@ V_DR = V_IPS + DM_correction
 
 ## Instalacja
 
+### Opcja 1: uv (rekomendowane)
+
+```bash
+git clone <repo-url>
+cd <repo>
+uv sync
+```
+
+Uruchamianie notebookow:
+
+```bash
+uv run jupyter lab
+```
+
+### Opcja 2: pip
+
 ```bash
 git clone <repo-url>
 cd <repo>

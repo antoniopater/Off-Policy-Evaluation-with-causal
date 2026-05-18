@@ -1,0 +1,15 @@
+data/*
+!data/.gitkeep
+results/*.png
+results/*.jpg
+results/*.jpeg
+results/*.pdf
+results/*.csv
+results/*.parquet
+results/*.pkl
+results/*.joblib
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+**/.DS_Store
