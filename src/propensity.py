@@ -1,8 +1,29 @@
 """Propensity score model utilities — Week 5."""
 
+from __future__ import annotations
+
+import os
+
+# Reduce flaky OpenMP segfaults on macOS when XGBoost is imported after numpy/sklearn.
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+
 import numpy as np
-from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
+
+# First 20 user features are shared between random (20-d) and bts (22-d) in OBD small set.
+OBD_COMMON_CONTEXT_DIM = 20
+
+
+def align_context(context: np.ndarray, n_features: int = OBD_COMMON_CONTEXT_DIM) -> np.ndarray:
+    """Slice to common context dimension across OBD policies."""
+    if context.shape[1] < n_features:
+        raise ValueError(
+            f"Context has {context.shape[1]} features, expected at least {n_features}"
+        )
+    return np.ascontiguousarray(context[:, :n_features], dtype=np.float32)
 
 
 def train_propensity_model(
@@ -10,23 +31,18 @@ def train_propensity_model(
     action: np.ndarray,
     n_actions: int = 80,
     random_state: int = 42,
+    n_features: int = OBD_COMMON_CONTEXT_DIM,
 ) -> XGBClassifier:
-    """Train P(a|s) — 80-class softmax classifier.
+    """Train P(a|s) — 80-class softmax classifier."""
+    X = align_context(context, n_features)
+    y = np.asarray(action, dtype=np.int32)
 
-    Args:
-        context:      (n_rounds, n_features) user/context features
-        action:       (n_rounds,) integer action labels 0..n_actions-1
-        n_actions:    size of action space (default 80 for OBD)
-        random_state: reproducibility seed
-
-    Returns:
-        Fitted XGBClassifier with predict_proba → (n_rounds, n_actions)
-    """
     X_train, X_val, y_train, y_val = train_test_split(
-        context, action,
+        X,
+        y,
         test_size=0.2,
         random_state=random_state,
-        stratify=action,
+        stratify=y,
     )
 
     model = XGBClassifier(
@@ -39,6 +55,8 @@ def train_propensity_model(
         num_class=n_actions,
         eval_metric="mlogloss",
         early_stopping_rounds=20,
+        tree_method="hist",
+        n_jobs=1,
         random_state=random_state,
     )
     model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
@@ -49,31 +67,42 @@ def extract_propensity_scores(
     model: XGBClassifier,
     context: np.ndarray,
     action: np.ndarray,
+    n_features: int = OBD_COMMON_CONTEXT_DIM,
 ) -> np.ndarray:
-    """Return P(a_i | s_i) for each observed (context, action) pair.
+    """Return P(a_i | s_i) for each observed (context, action) pair."""
+    X = align_context(context, n_features)
+    y = np.asarray(action, dtype=np.int32)
+    proba = model.predict_proba(X)
+    col_idx = np.searchsorted(model.classes_, y)
+    if not np.all(model.classes_[col_idx] == y):
+        raise ValueError("Action labels contain classes not seen during training")
+    return proba[np.arange(len(y)), col_idx]
 
-    Args:
-        model:   trained propensity model
-        context: (n_rounds, n_features)
-        action:  (n_rounds,) integer action labels
 
-    Returns:
-        (n_rounds,) propensity scores in [0, 1]
-    """
-    proba = model.predict_proba(context)              # (n_rounds, n_actions)
-    return proba[np.arange(len(action)), action]      # pick column of observed action
+def propensity_calibration_curve(
+    model: XGBClassifier,
+    context: np.ndarray,
+    action: np.ndarray,
+    n_bins: int = 10,
+    n_features: int = OBD_COMMON_CONTEXT_DIM,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Reliability diagram for top-1 action: confidence vs hit-rate."""
+    from sklearn.calibration import calibration_curve
+
+    X = align_context(context, n_features)
+    y = np.asarray(action, dtype=np.int32)
+    proba = model.predict_proba(X)
+    pred = model.classes_[np.argmax(proba, axis=1)]
+    confidence = proba.max(axis=1)
+    hit = (pred == y).astype(np.int32)
+    return calibration_curve(hit, confidence, n_bins=n_bins, strategy="quantile")
 
 
 def effective_sample_size(weights: np.ndarray) -> tuple[float, float]:
-    """Compute ESS and ESS ratio for importance weights.
-
-    ESS ratio < 0.1 signals critical overlap violation.
-
-    Returns:
-        (ess, ess_ratio) tuple
-    """
-    ess = float(weights.sum() ** 2) / float((weights ** 2).sum())
-    return ess, ess / len(weights)
+    """Compute ESS and ESS ratio for importance weights."""
+    w = np.asarray(weights, dtype=np.float64)
+    ess = float(w.sum() ** 2) / float((w**2).sum())
+    return ess, ess / len(w)
 
 
 def overlap_diagnostics(
@@ -82,24 +111,18 @@ def overlap_diagnostics(
     pi_eval: float,
     n_actions: int = 80,
 ) -> dict:
-    """Compute overlap diagnostics for propensity scores.
-
-    Args:
-        pscores:   (n_rounds,) P(a_i|s_i) under logging policy
-        action:    (n_rounds,) observed action labels
-        pi_eval:   scalar P(a|s) under evaluation policy (uniform = 1/n_actions)
-        n_actions: action space size
-
-    Returns:
-        dict with summary stats, ESS, and per-action min pscore
-    """
+    """Compute overlap diagnostics for propensity scores."""
+    pscores = np.asarray(pscores, dtype=np.float64)
+    action = np.asarray(action, dtype=np.int32)
     weights = pi_eval / np.clip(pscores, 1e-9, None)
     ess, ess_ratio = effective_sample_size(weights)
 
-    min_per_action = np.array([
-        pscores[action == a].min() if (action == a).sum() > 0 else np.nan
-        for a in range(n_actions)
-    ])
+    min_per_action = np.array(
+        [
+            pscores[action == a].min() if (action == a).any() else np.nan
+            for a in range(n_actions)
+        ]
+    )
 
     return {
         "pscore_min": float(pscores.min()),

@@ -242,6 +242,8 @@ seaborn
 
 | Faza | Status | Ocena |
 |---|---|---|
-| Faza 1 — Direct Method | 🔲 w toku |
-| Faza 2 — IPS + propensity | 🔲 planowana | 
-| Faza 3 — DR + StatsBomb | 🔲 planowana | 
+| Faza 1 — Direct Method (T1–T4) | ✅ ukończona | 3.0+ |
+| Faza 2 — IPS + propensity (T5–T8) | ✅ ukończona | 4.0+ |
+| Faza 3 — DR + StatsBomb (T9–T12) | ✅ ukończona | 5.0 |
+
+Raport finalny: [`results/FINAL_REPORT.md`](results/FINAL_REPORT.md)

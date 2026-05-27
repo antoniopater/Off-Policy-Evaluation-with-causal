@@ -2,10 +2,10 @@ obp
 econml
 dowhy
 xgboost
-shap
+shap>=0.47
 statsbombpy
 scikit-learn
-pandas
+pandas>=2.2,<3
 numpy
 matplotlib
 seaborn
