@@ -100,12 +100,14 @@ Direct Method to najprostsze podejście: trenujemy model ML (XGBoost), który pr
 
 Wykres po lewej pokazuje: V_DM = **0.0035**, bardzo blisko ground truth V\* = 0.0038. Przedziały ufności są wąskie — DM ma niską wariancję.
 
-Ale jest problem: krzywa precision-recall (wykres po prawej) — **AUC-PR = 0.015**. Model prawie nie odróżnia klasy "kliknięcie" od "brak kliknięcia". To nie jest błąd implementacji — to fundamentalna trudność: nagroda jest zbyt rzadka (0.38%) żeby model nauczył się precyzyjnie przewidywać.
+Ale jest problem: krzywa precision-recall (wykres po prawej) — **AUC-PR = 0.0056**, czyli praktycznie na poziomie baseline (CTR ≈ 0.0037). Model w zasadzie nie odróżnia klasy "kliknięcie" od "brak kliknięcia" — przewiduje blisko średniej dla każdej akcji. To nie jest błąd implementacji — to fundamentalna trudność: nagroda jest zbyt rzadka (0.38%) żeby model nauczył się precyzyjnie przewidywać per-akcja.
 
 **Liczby do zacytowania:**
 - V_DM = **0.003515**
-- AUC-PR = **0.015** (bliski losowemu — losowy model ma AUC-PR = 0.0038)
+- AUC-PR = **0.0056** (≈ losowy — baseline CTR walidacyjny ≈ 0.0037)
 - 95% CI = [0.003506, 0.003525] — **bardzo wąskie**
+
+**Ważna uwaga interpretacyjna:** to, że V_DM ≈ V*, jest w dużej mierze efektem *kalibracji do średniej* (model przewiduje wartości bliskie globalnemu CTR dla każdej akcji), a nie dowodem na trafne różnicowanie nagrody między akcjami. Niska wariancja DM nie oznacza niskiego ryzyka błędu, jeśli różne akcje faktycznie mają różne wartości — model tego po prostu nie widzi.
 
 ---
 
@@ -166,7 +168,7 @@ IPS ma fundamentalny problem: gdy nowa polityka chce oceniać akcje, które star
 
 Lewy wykres pokazuje eksperyment z clippingiem: obcinamy wagi do wartości maksymalnej λ. Przy małych λ — wzrasta bias (ignorujemy ważne obserwacje). Przy dużych λ — wariancja wybucha. Jest klif: przy λ > 0.016 wszystkie wagi OBD zerują się.
 
-Prawy wykres symuluje naruszenie overlap: usuwamy 10% obserwacji z najniższymi pscore. ESS spada z 0.99 do **0.11** — efektywna próba kurczy się 9-krotnie, a V_IPS skacze 5×.
+Prawy wykres (histogramy wag IPS) symuluje naruszenie overlap: zaniżamy o rząd wielkości pscore dla 10% obserwacji. Po lewej — oryginalne wagi (max=1.32, ESS ratio=0.988). Po prawej — wagi po naruszeniu (max=124.4, ESS ratio=0.113, skala logarytmiczna). ESS spada z 0.99 do **0.11** — efektywna próba kurczy się 9-krotnie, a V_IPS skacze 5×.
 
 **Liczby do zacytowania:**
 - Przy naruszeniu overlap: ESS **0.99 → 0.11**
@@ -406,7 +408,7 @@ W produkcji — DR to domyślny wybór. Wymaga treningu dwóch modeli, ale gwara
 | `02_reward_distribution.png` | S4 | CTR ≈ 0.38%, klasa imbalanced |
 | `03_action_distribution.png` | S4 | Rozkład 80 akcji |
 | `04_dm_vs_naive_ci.png` | S5 | V_DM = 0.0035 z CI |
-| `05_pr_curve.png` | S5 | AUC-PR = 0.015 reward modelu |
+| `05_pr_curve.png` | S5 | AUC-PR = 0.0056 reward modelu (T8, max_depth=4) |
 | `06_shap_top20.png` | S6 | Top 20 feature importance |
 | `07_ood_risk_map.png` | S6 | OOD — ekstrapolacja poza manifold |
 | `08_calibration_curve.png` | S7 | Kalibracja modelu P(a\|s) |
