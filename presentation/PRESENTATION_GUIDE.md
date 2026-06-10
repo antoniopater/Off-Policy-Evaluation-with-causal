@@ -152,7 +152,7 @@ Krzywa kalibracji (wykres po lewej) sprawdza czy nasz model propensity dobrze si
 **Liczby do zacytowania:**
 - Model P(a|s): **80-klasowy XGBoost**, multiclass logloss ≈ 4.37
 - Top-1 accuracy: **1.75%** (losowy baseline = 1.25%) — uczymy się czegoś, ale mało
-- ESS (Effective Sample Size) = **9890 / 10000 = 98.9%** — wagi prawie równe (bo polityki są podobne)
+- ESS (Effective Sample Size) = **9877 / 10000 = 98.77%** — wagi prawie równe (bo polityki są podobne)
 - V_IPS = **0.004423**
 
 ---
@@ -390,7 +390,7 @@ W produkcji — DR to domyślny wybór. Wymaga treningu dwóch modeli, ale gwara
 | Ground truth V\*? | 0.0038 (naive CTR polityki random) |
 | Najlepszy estymator MSE? | DM: MSE = 8.1e-8 |
 | Najniższa wariancja? | DM: Variance ≈ 0 |
-| ESS w OBD? | 98.9% (wagi ≈ 1) |
+| ESS w OBD? | 98.77% (wagi ≈ 1) |
 | ESS w StatsBomb? | 68.6% |
 | DR kiedy działa? | Gdy choć jeden model (PS lub reward) jest dobry |
 | DR kiedy nie działa? | Gdy reward model stały 0.5 → DR = −0.024 |

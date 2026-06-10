@@ -320,7 +320,7 @@ wagi, nawet jeśli "ranking" akcji jest w miarę poprawny.
 **Co jest na slajdzie:** Formuła V_IPS = E[r × π_new(a|s)/π_old(a|s)],
 histogram wag IPS (`09_ips_weights_hist.png`) oraz tabela: model P(a|s) =
 80-klasowy XGBoost, multiclass logloss ≈ 4.37, top-1 accuracy = 1.75%
-(baseline 1.25%), ESS = 9890/10000 = 98.9%, V_IPS = 0.004423.
+(baseline 1.25%), ESS = 9877/10000 = 98.77%, V_IPS = 0.004423.
 
 **Co mówić:**
 "IPS przeważa **obserwowaną** nagrodę przez stosunek π_new(a|s)/π_old(a|s).
@@ -334,21 +334,21 @@ i polityki logującej (też w przybliżeniu uniform — Random) — wagi wychodz
 bliskie 1. Histogram po prawej to potwierdza: rozkład wag jest skupiony
 wokół wartości 1.
 
-ESS (Effective Sample Size) = 9890/10000 = **98.9%** — prawie wszystkie 10
+ESS (Effective Sample Size) = 9877/10000 = **98.77%** — prawie wszystkie 10
 tysięcy obserwacji 'liczą się' efektywnie, bo wagi są wyrównane. To daje
 **V_IPS = 0.004423** — też blisko V* = 0.0038, ale z dużo szerszym CI niż
 DM (zobaczymy to na slajdzie 13)."
 
 **Czego to uczy / Cel slajdu:**
 Wprowadza IPS jako **alternatywne, niezależne od reward modelu** podejście
-— i pokazuje mechanikę ważenia w praktyce (histogram wag ≈ 1). ESS = 98.9%
+— i pokazuje mechanikę ważenia w praktyce (histogram wag ≈ 1). ESS = 98.77%
 to ważny punkt odniesienia: na slajdzie 11 zobaczymy, co się dzieje, gdy ESS
 spada do 11%.
 
 **Kluczowe liczby:**
 - Model P(a|s): 80-klasowy XGBoost, multiclass logloss ≈ **4.37**
 - Top-1 accuracy = **1.75%** (losowy baseline = 1.25%)
-- ESS = **9890/10000 = 98.9%**
+- ESS = **9877/10000 = 98.77%**
 - V_IPS = **0.004423**
 
 ---
@@ -390,7 +390,7 @@ ESS ratio=0.988), po prawej "Wagi IPS po naruszeniu overlap (10% zaniżone)"
 (max=124.4, ESS ratio=0.113, skala logarytmiczna).
 
 **Co mówić:**
-"Slajd 9 pokazał ESS = 98.9% — prawie idealny overlap, bo polityki Random
+"Slajd 9 pokazał ESS = 98.77% — prawie idealny overlap, bo polityki Random
 i nasza polityka ewaluowana są w praktyce takie same. Ale co by się stało,
 gdyby polityka logująca miała 'martwe strefy' — kontekst-akcje, które
 prawie nigdy nie były wybierane (niskie π_old)?
@@ -401,7 +401,7 @@ skupione wokół 1, max = 1.32, ESS ratio = 0.988. Histogram po prawej (uwaga:
 skala logarytmiczna na osi Y!) to po naruszeniu — pojawia się długi ogon wag
 sięgających **124.4**, a ESS ratio spada do **0.113**.
 
-Konsekwencja: efektywna próba kurczy się 9-krotnie (z 98.9% do 11.3% z 10 000
+Konsekwencja: efektywna próba kurczy się 9-krotnie (z 98.77% do 11.3% z 10 000
 obserwacji), a **V_IPS skacze z 0.004423 do 0.021314 — czyli niemal 5×**,
 mimo że prawdziwa wartość polityki się nie zmieniła. To pokazuje, jak
 kruchy jest IPS, gdy złamane jest założenie overlap."
@@ -718,7 +718,7 @@ zjawiskach, a nie na ogólnikach z literatury.
 | AUC-PR reward modelu? | **0.0056** (≈ baseline 0.0037, brak mocy dyskryminacyjnej) |
 | Dlaczego V_DM ≈ V* mimo niskiego AUC-PR? | Model kalibruje się do średniej CTR — V_DM to średnia predykcji, więc zbiega do globalnego CTR niezależnie od trafności per-akcja |
 | Najlepszy estymator wg MSE? | DM: MSE = 8.1e-8 (ale to głównie Bias², nie precyzja per-akcja) |
-| ESS w OBD (baseline)? | 98.9% |
+| ESS w OBD (baseline)? | 98.77% |
 | ESS po naruszeniu overlap (10% pscore)? | 11.3% (V_IPS skacze ~5×: 0.004423 → 0.021314) |
 | ESS w StatsBomb? | 68.6% |
 | DR kiedy działa? | Gdy choć jeden model (PS lub reward) jest "wystarczająco dobry" |
