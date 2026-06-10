@@ -88,24 +88,24 @@ V_DR = V_IPS + DM_correction
 ### Faza 1 — Fundament (tygodnie 1–4) · gwarancja 3.0
 
 **Tydzień 1 — Setup środowiska i dane OBD**
-- [ ] `pip install obp xgboost shap`
-- [ ] Pobranie Open Bandit Dataset — dwie polityki: Random i BernoulliTS
-- [ ] EDA: rozkład nagród, rozkład akcji, brakujące wartości
+- [x] `pip install obp xgboost shap`
+- [x] Pobranie Open Bandit Dataset — dwie polityki: Random i BernoulliTS
+- [x] EDA: rozkład nagród, rozkład akcji, brakujące wartości
 
 **Tydzień 2 — Implementacja Direct Method**
-- [ ] Lektura sekcji 3 papieru Saito et al. (NeurIPS 2021)
-- [ ] Trening reward model (XGBoost)
-- [ ] `DirectMethod` z biblioteki `obp` — pierwsza wartość policy value
+- [x] Lektura sekcji 3 papieru Saito et al. (NeurIPS 2021)
+- [x] Trening reward model (XGBoost)
+- [x] `DirectMethod` z biblioteki `obp` — pierwsza wartość policy value
 
 **Tydzień 3 — Odtworzenie wyników z papieru**
-- [ ] Identyczny split train/test jak w papierze
-- [ ] Porównanie MSE z benchmarkiem z Table 2 / Figure 3
-- [ ] Bootstrapowane przedziały ufności (n=200 resampli)
+- [x] Identyczny split train/test jak w papierze
+- [x] Porównanie MSE z benchmarkiem z Table 2 / Figure 3
+- [x] Bootstrapowane przedziały ufności (n=200 resampli)
 
 **Tydzień 4 — Analiza słabości DM**
-- [ ] SHAP: które cechy są ważne dla reward model?
-- [ ] Identyfikacja przykładów out-of-distribution
-- [ ] Dokumentacja: założenia DM, kiedy zawodzi
+- [x] SHAP: które cechy są ważne dla reward model?
+- [x] Identyfikacja przykładów out-of-distribution
+- [x] Dokumentacja: założenia DM, kiedy zawodzi
 
 > **Deliverable fazy 1:** działający pipeline DM + wyniki zgodne z benchmarkiem + README
 
@@ -114,24 +114,24 @@ V_DR = V_IPS + DM_correction
 ### Faza 2 — Korekcja kauzalna (tygodnie 5–8) · cel 4.0
 
 **Tydzień 5 — Propensity score model**
-- [ ] Trening modelu PS: XGBoost multiclass — P(a | s)
-- [ ] Kalibracja: reliability diagram
-- [ ] Overlap assumption: histogram wag IPS = π_new / π_old
+- [x] Trening modelu PS: XGBoost multiclass — P(a | s)
+- [x] Kalibracja: reliability diagram
+- [x] Overlap assumption: histogram wag IPS = π_new / π_old
 
 **Tydzień 6 — IPS Estimator z clippingiem**
-- [ ] `InverseProbabilityWeighting` z `obp` + stabilizowane wagi (SNIPS)
-- [ ] Eksperyment clipping: λ ∈ {1, 5, 10, 50} → bias vs wariancja
-- [ ] Odtworzenie wyników IPS z papieru
+- [x] `InverseProbabilityWeighting` z `obp` + stabilizowane wagi (SNIPS)
+- [x] Eksperyment clipping: λ ∈ {1, 5, 10, 50} → bias vs wariancja
+- [x] Odtworzenie wyników IPS z papieru
 
 **Tydzień 7 — Diagnoza kiedy IPS eksploduje**
-- [ ] Symulacja naruszenia overlap — usunięcie obserwacji z P(a|s) < 0.05
-- [ ] Effective Sample Size: ESS = (Σwi)² / Σwi²
-- [ ] Instalacja i przegląd `econml` — dokumentacja DR
+- [x] Symulacja naruszenia overlap — usunięcie obserwacji z P(a|s) < 0.05
+- [x] Effective Sample Size: ESS = (Σwi)² / Σwi²
+- [x] Instalacja i przegląd `econml` — dokumentacja DR
 
 **Tydzień 8 — Porównanie DM vs IPS**
-- [ ] Unified benchmark: DM vs IPS vs SNIPS
-- [ ] Dekompozycja błędu: MSE = Bias² + Variance
-- [ ] Wykres Bias-Variance trade-off
+- [x] Unified benchmark: DM vs IPS vs SNIPS
+- [x] Dekompozycja błędu: MSE = Bias² + Variance
+- [x] Wykres Bias-Variance trade-off
 
 > **Deliverable fazy 2:** pełne porównanie DM vs IPS + dekompozycja błędu
 
@@ -140,27 +140,27 @@ V_DR = V_IPS + DM_correction
 ### Faza 3 — Most do badań (tygodnie 9–12) · cel 5.0
 
 **Tydzień 9 — Doubly Robust Estimator**
-- [ ] `DoublyRobust` z `obp`
-- [ ] Eksperyment: zły PS model → sprawdzenie czy DM ratuje DR
-- [ ] Eksperyment: zły reward model → sprawdzenie czy IPS ratuje DR
+- [x] `DoublyRobust` z `obp`
+- [x] Eksperyment: zły PS model → sprawdzenie czy DM ratuje DR
+- [x] Eksperyment: zły reward model → sprawdzenie czy IPS ratuje DR
 
 **Tydzień 10 — Sensitivity analysis w DoWhy**
-- [ ] Definicja modelu kauzalnego: treatment, outcome, confounders
-- [ ] Random Common Cause test
-- [ ] Placebo Treatment test
-- [ ] Interpretacja: odporność estymatu DR na ukryte zmienne
+- [x] Definicja modelu kauzalnego: treatment, outcome, confounders
+- [x] Random Common Cause test
+- [x] Placebo Treatment test
+- [x] Interpretacja: odporność estymatu DR na ukryte zmienne
 
 **Tydzień 11 — Pilot na StatsBomb**
-- [ ] `statsbombpy`: dane La Liga 2015/16 z formatem 360°
-- [ ] Definicja treatment: progressive pass (>30 yardów do przodu)
-- [ ] Features z danych 360°: pozycja, presja, zawodnicy w zasięgu
-- [ ] DR pipeline na danych piłkarskich — pierwsze policy value dla progressive passes
+- [x] `statsbombpy`: dane La Liga 2015/16 z formatem 360°
+- [x] Definicja treatment: progressive pass (>30 yardów do przodu)
+- [x] Features z danych 360°: pozycja, presja, zawodnicy w zasięgu
+- [x] DR pipeline na danych piłkarskich — pierwsze policy value dla progressive passes
 
 **Tydzień 12 — Raport finalny**
-- [ ] Tabela finalna: DM vs IPS vs DR — MSE, Bias², Variance, CI
-- [ ] Sekcja "Experiments" w formacie NeurIPS
-- [ ] Limitations: założenia i kiedy każda metoda zawodzi
-- [ ] Czysty, reprodukowalny kod + README + tag `v1.0`
+- [x] Tabela finalna: DM vs IPS vs DR — MSE, Bias², Variance, CI
+- [x] Sekcja "Experiments" w formacie NeurIPS
+- [x] Limitations: założenia i kiedy każda metoda zawodzi
+- [x] Czysty, reprodukowalny kod + README + tag `v1.0`
 
 > **Deliverable fazy 3:** pełny pipeline OPE + raport + sekcja Experiments gotowa do projektu badawczego
 
@@ -170,19 +170,27 @@ V_DR = V_IPS + DM_correction
 
 ```
 .
-├── data/                   # dane OBD i StatsBomb (nie commitowane)
+├── data/                        # dane OBD i StatsBomb (nie commitowane)
 ├── notebooks/
-│   ├── 01_eda.ipynb         # eksploracja danych OBD
-│   ├── 02_direct_method.ipynb
-│   ├── 03_propensity_ips.ipynb
-│   ├── 04_doubly_robust.ipynb
-│   ├── 05_sensitivity.ipynb
-│   └── 06_statsbomb_pilot.ipynb
+│   ├── 01_eda.ipynb              # T1 — eksploracja danych OBD
+│   ├── 02_direct_method.ipynb   # T2 — Direct Method, reward model XGBoost
+│   ├── 03_propensity_ips.ipynb  # T3 — reprodukcja benchmarku DM
+│   ├── 04_doubly_robust.ipynb   # T4 — SHAP + OOD diagnostika
+│   ├── 07_propensity_scores.ipynb  # T5 — propensity score model P(a|s)
+│   ├── 08_ips_snips.ipynb       # T6 — IPS + SNIPS + clipping experiment
+│   ├── 09_overlap_ess.ipynb     # T7 — overlap violation + ESS
+│   ├── 10_bias_variance.ipynb   # T8 — unified benchmark + MSE decomposition
+│   ├── 11_doubly_robust.ipynb   # T9 — Doubly Robust + robustness experiments
+│   ├── 12_sensitivity_dowhy.ipynb  # T10 — sensitivity analysis (DoWhy)
+│   └── 13_statsbomb_pilot.ipynb # T11 — StatsBomb La Liga OPE pilot
+├── figures/                     # wykresy (week2–week11)
 ├── src/
-│   ├── estimators.py        # DM, IPS, DR wrappers
-│   ├── propensity.py        # model propensity score
-│   └── evaluation.py       # MSE, bias/variance, bootstrap CI
-├── results/                 # wykresy, tabele
+│   ├── estimators.py            # DM, IPS, DR wrappers
+│   ├── propensity.py            # model propensity score
+│   ├── evaluation.py            # MSE, bias/variance, bootstrap CI
+│   └── dataset.py               # patch OpenBanditDataset dla pandas 2.x
+├── results/                     # tabele CSV, FINAL_REPORT.md
+├── pyproject.toml
 ├── requirements.txt
 └── README.md
 ```
