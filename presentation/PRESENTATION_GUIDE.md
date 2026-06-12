@@ -183,7 +183,7 @@ Prawy wykres (histogramy wag IPS) symuluje naruszenie overlap: zaniżamy o rząd
 
 ### Slajd 9 — Doubly Robust Estimator
 
-**Tytuł slajdu:** Doubly Robust — state of the art w OPE
+**Tytuł slajdu:** Doubly Robust — Doubly Robust
 
 **Wykres:** `14_dr_robustness.png`
 
@@ -195,15 +195,15 @@ V_DR = V_IPS + E[ (r - f(s,a)) × π_new/π_old ]
 ```
 
 Wykres pokazuje trzy scenariusze:
-- **Baseline** (oba modele OK): DR ≈ 0.004223 ≈ V\* ✅
-- **Zły PS model** (losowe pscores): DR = **0.003818 ≈ V\*** ✅ — DR ratuje się dzięki dobremu reward modelowi
-- **Zły reward model** (stały 0.5): DR = −0.024 ❌ — katastrofalnie zły model nie jest ratowany
+- **Baseline** (oba modele OK): DR ≈ 0.004223 ≈ V\*
+- **Zły PS model** (losowe pscores): DR = **0.003818 ≈ V\*** — DR ratuje się dzięki dobremu reward modelowi
+- **Zły reward model** (stały 0.5): DR = −0.024 nie — katastrofalnie zły model nie jest ratowany
 
 **Wniosek:** Double robustness działa gdy jeden model jest "wystarczająco dobry", nie gdy jest ekstremalnie błędny. W praktyce to mocna gwarancja — rzadko oba modele zawodzą jednocześnie.
 
 **Liczby do zacytowania:**
-- Scenariusz zły PS: DR = **0.003818** ≈ V\* = 0.0038 ✅
-- Scenariusz zły reward (stały 0.5 vs prawdziwe 0.38%): DR = **−0.024** ❌ — 100× za duże
+- Scenariusz zły PS: DR = **0.003818** ≈ V\* = 0.0038
+- Scenariusz zły reward (stały 0.5 vs prawdziwe 0.38%): DR = **−0.024** nie — 100× za duże
 - V_DR baseline = **0.004223**
 
 ---
@@ -289,8 +289,8 @@ Wykres pokazuje: wszystkie testy przeszły. ATE = −0.0039 akcji 0 jest stabiln
 **Liczby do zacytowania:**
 - Original ATE = **−0.003924** (akcja 0 nie zwiększa CTR)
 - Random Common Cause: ATE = −0.003940, p = **0.392** (stabilne, p > 0.05)
-- Placebo Treatment: ATE = −0.000229 (efekt znika dla losowego treatment ✅)
-- Data Subset (80%): ATE = −0.003936, p = **0.485** (stabilne ✅)
+- Placebo Treatment: ATE = −0.000229 (efekt znika dla losowego treatment tak)
+- Data Subset (80%): ATE = −0.003936, p = **0.485** (stabilne tak)
 
 ---
 

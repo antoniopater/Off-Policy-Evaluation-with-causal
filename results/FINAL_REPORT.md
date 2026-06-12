@@ -46,12 +46,10 @@ przeszacowywał nagrody). Po naprawieniu modelu (nowa wersja T8) DM konwerguje d
 |---|---|---|---|
 | Baseline (oba modele OK) | 0.003515 | 0.004423 | 0.004223 |
 | Zły PS model (random pscores) | 0.003515 | 0.003809 | **0.003818** ≈ V* |
-| Zły reward model (stały 0.5) | 0.500000 | 0.004423 | −0.024 ❗ |
+| Zły reward model (stały 0.5) | 0.500000 | 0.004423 | −0.024  |
 
-**Eksperyment A:** Gdy PS model jest zły ale reward model OK → DR ≈ 0.0038 ≈ V* ✅  
-**Eksperyment B:** Gdy reward model jest *katastrofalnie* zły (50% vs 0.4% CTR) → DR nie ratuje.
-IPS pozostaje stabilne (0.0044). Potwierdza to ograniczenie double robustness: działa gdy
-jeden model jest "wystarczająco dobry", nie gdy jest ekstremalnie błędny.
+**Eksperyment A:** zły PS, dobry reward model → DR ≈ V*.  
+**Eksperyment B:** reward model stały 0.5 → DR zawodzi; IPS ≈ 0.0044.
 
 ---
 
@@ -59,9 +57,9 @@ jeden model jest "wystarczająco dobry", nie gdy jest ekstremalnie błędny.
 
 | Test | Original ATE | Wynik | p-value | Interpretacja |
 |---|---|---|---|---|
-| Random Common Cause | −0.003924 | −0.003940 | 0.392 | ✅ Stabilne (p > 0.05) |
-| Placebo Treatment | −0.003924 | −0.000229 | 0.485 | ✅ Efekt znika dla placebo |
-| Data Subset (80%) | −0.003924 | −0.003936 | 0.485 | ✅ Stabilne na podzbiorach |
+| Random Common Cause | −0.003924 | −0.003940 | 0.392 | stabilne |
+| Placebo Treatment | −0.003924 | −0.000229 | 0.485 | efekt ≈ 0 |
+| Data Subset (80%) | −0.003924 | −0.003936 | 0.485 | stabilne |
 
 **ATE akcji 0 vs reszta:** −0.0039 (akcja 0 nie zwiększa CTR względem innych akcji).
 Wynik stabilny we wszystkich testach refutacji — model kauzalny odporny.
@@ -93,25 +91,45 @@ bo piłkarze mają preferencje co do progressive passes zależne od pozycji).
 
 ---
 
-## 6. Struktura notebooków
+## 6. Walidacja syntetyczna (T12)
 
-| Notebook | Tydzień | Temat | Status |
-|---|---|---|---|
-| `01_eda.ipynb` | T1 | EDA Open Bandit Dataset | ✅ |
-| `02_direct_method.ipynb` | T2 | Direct Method — pierwsza estymata | ✅ |
-| `03_propensity_ips.ipynb` | T3 | Reprodukcja benchmarku DM | ✅ |
-| `04_doubly_robust.ipynb` | T4 | SHAP + OOD diagnostika | ✅ |
-| `07_propensity_scores.ipynb` | T5 | Propensity score model (XGBoost) | ✅ |
-| `08_ips_snips.ipynb` | T6 | IPS + SNIPS + clipping experiment | ✅ |
-| `09_overlap_ess.ipynb` | T7 | Overlap violation + econml preview | ✅ |
-| `10_bias_variance.ipynb` | T8 | Unified benchmark + MSE decomposition | ✅ |
-| `11_doubly_robust.ipynb` | T9 | Doubly Robust + robustness experiments | ✅ |
-| `12_sensitivity_dowhy.ipynb` | T10 | Sensitivity analysis (DoWhy) | ✅ |
-| `13_statsbomb_pilot.ipynb` | T11 | StatsBomb La Liga OPE pilot | ✅ |
+Symulacja ze znanym V* i V_naive (`14_synthetic_validation.ipynb`), pipeline jak w StatsBomb.
+
+| Scenariusz | ESS | Δ | DR V̂ | naive w CI? | V* w CI? |
+|---|---|---|---|---|---|
+| A. Dobry overlap, Δ=0 | 0.926 | 0 | 0.02155 | tak | tak |
+| B. Dobry overlap, Δ=duży | 0.926 | +0.012 | 0.06744 | nie | tak |
+| C. StatsBomb overlap, Δ=0 | 0.706 | 0 | 0.02162 | tak | tak |
+| D. StatsBomb overlap, Δ=mały | 0.706 | +0.001 | 0.03241 | tak | tak |
+| E. StatsBomb overlap, Δ=duży | 0.706 | +0.006 | 0.06652 | nie | tak |
+
+Oracle (prawdziwe P_b, p): DM = V*; IPS/SNIPS/DR odchylenie < 0.0006.
+
+Przy ESS ≈ 0.7 estymator wykrywa duży efekt (E), ale nie rozróżnia Δ=0 od małego Δ (C vs D).
+Wynik StatsBomb (DR ≈ naive) jest zgodny z brakiem lub małym efektem, nie z awarią metody.
 
 ---
 
-## 7. Limitations
+## 7. Struktura notebooków
+
+| Notebook | Tydzień | Temat |
+|---|---|---|
+| `01_eda.ipynb` | T1 | EDA OBD |
+| `02_direct_method.ipynb` | T2 | Direct Method |
+| `03_propensity_ips.ipynb` | T3 | Benchmark DM |
+| `04_doubly_robust.ipynb` | T4 | SHAP + OOD |
+| `07_propensity_scores.ipynb` | T5 | Propensity model |
+| `08_ips_snips.ipynb` | T6 | IPS + SNIPS |
+| `09_overlap_ess.ipynb` | T7 | Overlap + ESS |
+| `10_bias_variance.ipynb` | T8 | Unified benchmark |
+| `11_doubly_robust.ipynb` | T9 | Doubly Robust |
+| `12_sensitivity_dowhy.ipynb` | T10 | DoWhy |
+| `13_statsbomb_pilot.ipynb` | T11 | StatsBomb |
+| `14_synthetic_validation.ipynb` | T12 | Walidacja syntetyczna |
+
+---
+
+## 8. Limitations
 
 ### Direct Method
 - Reward model z AUC-PR ≈ 0.015 (bliski losowemu) — predykcje systematycznie odbiegają od prawdy
@@ -135,7 +153,7 @@ bo piłkarze mają preferencje co do progressive passes zależne od pozycji).
 
 ---
 
-## 8. Reprodukcja
+## 9. Reprodukcja
 
 ```bash
 git clone <repo-url>
@@ -144,11 +162,11 @@ uv sync
 uv run jupyter lab
 ```
 
-Uruchom notebooki w kolejności: 01 → 02 → 03 → 04 → 07 → 08 → 09 → 10 → 11 → 12 → 13.
+Uruchom notebooki w kolejności: 01 → 02 → 03 → 04 → 07 → 08 → 09 → 10 → 11 → 12 → 13 → 14.
 
 ---
 
-## 9. Literatura
+## 10. Literatura
 
 - Saito, Y. et al. (2021). *Open Bandit Dataset and Pipeline.* NeurIPS 2021.
 - Dudík, M., Langford, J., Li, L. (2011). *Doubly Robust Policy Evaluation.* ICML 2011.

@@ -1,4 +1,4 @@
-"""Open Bandit Dataset loader compatible with pandas 2.x+."""
+"""Loader OBD — patch pre_process dla pandas 2.x."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 
 
 class OpenBanditDataset(_OpenBanditDataset):
-    """Patched pre_process for pandas 2+ (obp 0.4.1 uses deprecated drop API)."""
+    """obp 0.4.1 — drop(columns=...) zamiast deprecated API."""
 
     def pre_process(self) -> None:
         user_cols = self.data.columns.str.contains("user_feature")

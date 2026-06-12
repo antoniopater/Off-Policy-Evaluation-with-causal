@@ -1,20 +1,23 @@
-# Scenariusz prezentacji — `OPE_Prezentacja_v2.pptx` (18 slajdów)
+# Scenariusz prezentacji — `OPE_Prezentacja_v2.pptx` (19 slajdów)
 
 > Kompletny przewodnik slajd po slajdzie: co jest na slajdzie, co mówić,
 > co dany slajd tłumaczy i jaki jest jego cel w narracji całej prezentacji.
-> Czas: ok. 18–22 minuty + pytania.
+> Czas: ok. 19–23 minuty + pytania.
 >
-> Ten scenariusz jest dopasowany 1:1 do `OPE_Prezentacja_v2.pptx` (18 slajdów).
+> Ten scenariusz jest dopasowany 1:1 do `OPE_Prezentacja_v2.pptx` (19 slajdów).
 > Jest rozszerzeniem `PRESENTATION_GUIDE.md` (wersja 15-slajdowa) — slajdy
 > 5, 7 i 8 z tamtej wersji zostały tu rozbite na po dwa slajdy (5+6, 8+9, 10+11),
-> żeby każdy wykres miał własny slajd i więcej miejsca na komentarz.
+> żeby każdy wykres miał własny slajd i więcej miejsca na komentarz. Slajd 18
+> (walidacja syntetyczna, T12) jest nowym slajdem dodanym po pilocie StatsBomb,
+> żeby odpowiedzieć na pytanie "czy DR≈naive w StatsBomb to sygnał czy artefakt?".
 >
 > **Spójność liczb (stan po korekcie):** wszystkie wartości V_DM/V_IPS/V_SNIPS/V_DR,
 > CI i AUC-PR pochodzą z `notebooks/10_bias_variance.ipynb` (T8, model `max_depth=4`)
 > i `results/FINAL_REPORT.md`. AUC-PR reward modelu = **0.0056** (nie 0.015 — to była
 > wartość ze starszego modelu z notebooków 02/03, `max_depth=6`, który dawał
 > V_DM≈0.075–0.083, czyli ~20x za dużo. Patrz adnotacje w `02_direct_method.ipynb`
-> i `03_propensity_ips.ipynb`).
+> i `03_propensity_ips.ipynb`). Wyniki walidacji syntetycznej (slajd 18) pochodzą
+> z `notebooks/14_synthetic_validation.ipynb` (T12).
 
 ---
 
@@ -33,13 +36,14 @@
 | 9 | IPS — ważenie przez propensity scores | BLOK 4 | `09_ips_weights_hist.png` + tabela |
 | 10 | Clipping — tradeoff bias-variance | BLOK 4 | `10_bias_variance_clipping.png` |
 | 11 | Overlap violation — ESS 0.99 → 0.11 | BLOK 4 | `11_overlap_violation.png` |
-| 12 | Doubly Robust — state of the art w OPE | BLOK 5 | `14_dr_robustness.png` + tabela |
+| 12 | Doubly Robust — Doubly Robust | BLOK 5 | `14_dr_robustness.png` + tabela |
 | 13 | Wyniki — DM vs IPS vs SNIPS vs DR | BLOK 6 | `12_unified_benchmark_ci.png` + tabela |
 | 14 | MSE = Bias² + Variance (GŁÓWNY) | BLOK 6 | `13_bias_variance_decomposition.png` + tabela |
 | 15 | Sensitivity Analysis (DoWhy) | BLOK 7 | `15_sensitivity_refutations.png` + tabela |
 | 16 | Pilot sportowy — StatsBomb La Liga | BLOK 8 | `16_statsbomb_eda.png` |
 | 17 | Wyniki — aggressive policy w La Liga | BLOK 8 | `17_statsbomb_ope_results.png` + tabela |
-| 18 | Wnioski — kiedy używać DM, IPS, DR? | — | tabela porównawcza |
+| 18 | Walidacja syntetyczna — czy DR≈naive to sygnał czy artefakt? | BLOK 9 | `synthetic_validation.png` + tabela |
+| 19 | Wnioski — kiedy używać DM, IPS, DR? | — | tabela porównawcza |
 
 ---
 
@@ -63,6 +67,12 @@ Ustawia ramy całej prezentacji — jedno pytanie (counterfactual), trzy metody,
 dwie domeny danych. Słuchacz od razu wie, czego się spodziewać i dlaczego
 warto słuchać dalej (prawdziwe dane, znana ground truth, most do badań
 piłkarskich).
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Ustawia **jedno główne pytanie** całej prezentacji OBD: *ile kliknięć dałaby
+polityka, która każdemu użytkownikowi pokazuje każdy produkt z równym
+prawdopodobieństwem (1/80)?* — bez wdrażania jej na produkcji. Reszta slajdów
+to trzy sposoby odpowiedzi na to pytanie + walidacja na innej domenie.
 
 ---
 
@@ -94,6 +104,12 @@ brzmi jak "kolejny model ML" — z nim widać, że to inny problem.
 Dane OBD mają dwie polityki logujące: Random (losowa) i BernoulliTS
 (rekomendacyjna) — obie zbierane historycznie i obie obciążone biasem
 selekcji względem nowej polityki, którą chcemy ocenić.
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Wyjaśnia, **dlaczego nie wystarczy** wziąć logów BTS (lub innej „mądrej”
+polityki) i policzyć naiwny CTR, żeby odpowiedzieć na pytanie o π_uniform.
+Logi odzwierciedlają *starą* politykę wyboru produktów — nie to, co stałoby się
+przy równym P=1/80 dla każdego produktu. Stąd potrzeba OPE, nie zwykłego ML.
 
 ---
 
@@ -134,6 +150,11 @@ których słuchacz będzie potrzebował na kolejnych 15 slajdach, są wprowadzon
 tutaj w jednym miejscu. Warto zostawić ten slajd "w pamięci" — można do niego
 wrócić gestem ("przypomnijmy formułę z wcześniej...") przy slajdach 5, 9, 12.
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Formalizuje pytanie: **V\*** = oczekiwany CTR, gdy π_new = π_uniform (1/80).
+Każdy estymator (V_DM, V_IPS, V_DR) to inna próba oszacowania tej samej
+wielkości z logów ze *starej* polityki. π_new w formułach = właśnie uniform.
+
 ---
 
 ## Slajd 4 — Dane: Open Bandit Dataset (Zozo Research, NeurIPS 2021)
@@ -170,6 +191,48 @@ to przygotowuje grunt pod problem AUC-PR na slajdzie 6.
 - 80 akcji, CTR ≈ 0.38% (imbalance 260:1)
 - Ground truth **V\* = 0.0038**
 
+**Co to polityka uniform (π_eval)?**
+
+**Polityka uniform** = polityka, która w każdym kontekście wybiera każdą akcję z
+**tą samą, równą szansą**.
+
+W tym projekcie:
+\[
+\pi_{\text{eval}}(a \mid s) = \frac{1}{80} \quad \text{dla każdej akcji } a \in \{0,\ldots,79\}
+\]
+
+Intuicyjnie: „losuj produkt z katalogu z równym prawdopodobieństwem” — nie
+faworyzuj żadnej akcji, nie ucz się z historii. To jest **polityka ewaluowana**
+(π_new / π_eval) — pytamy estymatory: *ile kliknięć dałaby taka polityka?*
+
+Dlaczego uniform ≈ Random w OBD:
+- Polityka **Random** w datasetcie też pokazuje każdą z 80 akcji z P ≈ 1/80
+- Stąd V\* = CTR Random (0.0038) jest dobrym proxy dla V(π_uniform)
+
+**Setup eksperymentu — trzy role (ważne na komisji):**
+
+| Rola | Co to | W projekcie |
+|------|-------|-------------|
+| **π_eval** (polityka oceniana) | „Jaką politykę mierzymy?” | **Uniform 1/80** — NIE BTS |
+| **π_log** (polityka z logów) | „Kto zbierał dane historyczne?” | **Random** (trening modeli) lub **BTS** (batch ewaluacyjny w T8) |
+| **V\*** (ground truth) | „Jaka jest prawdziwa wartość π_eval?” | **0.0038** = CTR polityki Random |
+
+**Co mówić (jedno zdanie):**
+„Nie oceniamy w finalnym benchmarku, czy BTS jest lepszy od Random — oceniamy,
+ile dałaby polityka **uniform**. BTS pojawia się jako trudniejszy zestaw logów
+off-policy; modele trenujemy na Random, żeby uniknąć silnego biasu selekcji.”
+
+**Czego NIE robimy w finalnym benchmarku (T8):**
+- Nie szacujemy V(BTS) ani nie porównujemy „BTS vs Random” jako polityk docelowych
+- To było we wczesnych notebookach (`02`, `03`) — tam porównywano `V_DM(bts)` vs
+  `V_DM(random)` przy innym setupie
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Daje **ground truth** do pytania o uniform: V\* = 0.0038, bo polityka Random
+w datasetcie ≈ π_uniform. Bez tego nie wiedzielibyśmy, czy estymatory trafiają.
+Pokazuje też trudność zadania (0.38% CTR) — model musi przewidzieć *średni*
+wynik polityki równomiernej, nie „wygrać” na pojedynczych produktach.
+
 ---
 
 ## Slajd 5 — Direct Method — V_DM = 0.003515 ≈ V* = 0.0038
@@ -196,6 +259,18 @@ Ale — i to jest ważne — na następnym slajdzie pokażę, że ten model ma
 To rodzi pytanie: jak model, który prawie nie odróżnia 'kliknięcia' od
 'braku kliknięcia', może dać tak dokładny wynik V_DM?"
 
+**Skąd te liczby i co potwierdzają:**
+
+| Liczba | Skąd się bierze | Co potwierdza |
+|--------|-----------------|---------------|
+| **V\* = 0.0038** | CTR polityki Random na OBD small set (~0.38% kliknięć). Polityka ewaluowana (uniform, π = 1/80) jest praktycznie tożsama z Random — to nasz ground truth proxy. | Mamy punkt odniesienia do weryfikacji estymatorów bez wdrażania nowej polityki na żywo. |
+| **V_DM = 0.003515** | Średnia predykcji reward modelu Q̂(s,a) po 10K kontekstach BTS i 80 akcjach (waga 1/80 na akcję). Model XGBoost (`max_depth=4`, early stopping) trenowany na danych Random — mniej stronniczych niż BTS. | Mechanika DM działa: estymator liczy się poprawnie i daje wartość bliską V\*. |
+| **Bias = −0.000285** | V_DM − V\* = 0.003515 − 0.0038. Model lekko zaniża nagrodę względem ground truth. | Błąd systematyczny jest mały przy dobrej kalibracji do średniej — ale sam bias nie mówi, *dlaczego* model trafia. |
+| **95% CI [0.003506, 0.003525]** | Bootstrap n=200 na tych samych danych (T8). Szerokość ≈ 0.000019. | DM ma **najniższą wariancję** ze wszystkich estymatorów — uśrednia tysiące predykcji, więc wynik jest stabilny. |
+| **AUC-PR = 0.0056** (na slajdzie 6) | Reward model prawie nie rozróżnia kliknięć od braku kliknięć (CTR = 0.38%, imbalance 260:1, ~38 pozytywów na 10K). Predykcje Q̂(s,a) ≈ globalna średnia (~0.0035–0.0038) dla każdej akcji. | V_DM ≈ V\* wynika tu głównie z **kalibracji do średniej**, nie z trafnego rozróżniania akcji. Średnia z ~0.0038 = 0.0038 z definicji. |
+
+**Ważna korekta względem wczesnych notebooków (T2–T3):** przy `max_depth=6` ten sam pipeline dawał V_DM ≈ **0.075–0.083** (~20× za dużo) — model przeuczał się na rzadkiej klasie pozytywnej. Po obniżeniu do `max_depth=4` (T8) V_DM spadło do ~0.0035. To pokazuje, że DM jest **bardzo wrażliwy na jakość reward modelu** — sama bliskość V_DM ≈ V\* nie wystarcza jako dowód, że model „rozumie” nagrody.
+
 **Czego to uczy / Cel slajdu:**
 Pokazuje **pierwszy, pozytywny wynik** projektu — DM trafia w ground truth
 z bardzo małą wariancją. Ale celowo zostawia "haczyk" (AUC-PR = 0.0056), który
@@ -206,6 +281,12 @@ wygląda świetnie — ale czy naprawdę rozumiemy, dlaczego?"
 - V_DM = **0.003515** ≈ V* = **0.0038**
 - 95% CI = **[0.003506, 0.003525]** (szerokość 0.000019 — bardzo wąskie)
 - Bias = −0.000285 (DM lekko zaniża V*)
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+DM odpowiada: „gdybyśmy dla każdego użytkownika uśrednili predykcje kliknięcia
+po **wszystkich 80 produktach z wagą 1/80**, wyszłoby **~0.35%**” — blisko
+V\* = 0.38%. To jest **szacunek wartości polityki uniform**, nie porównanie
+BTS vs Random jako polityk docelowych.
 
 ---
 
@@ -251,6 +332,12 @@ To bezpośrednio uzasadnia, dlaczego w ogóle potrzebujemy IPS i DR (slajdy 8–
 - AUC-ROC ≈ 0.51 (≈ losowy, dla porównania)
 - CTR (validation) ≈ 0.37%
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Pokazuje **ograniczenie** odpowiedzi DM na pytanie o uniform: model nie wie,
+*który* produkt jest lepszy — przewiduje ~globalny CTR dla każdej akcji. Dla
+π_uniform (średnia po wszystkich akcjach) to akurat trafia w V\*, ale gdyby
+π_eval faworyzowała konkretne produkty (np. BTS), DM mógłby się mocno mylić.
+
 ---
 
 ## Slajd 7 — Słabość DM — ekstrapolacja i bias modelu nagrody
@@ -288,6 +375,12 @@ niska.
 - OOD rate = **0.16%**
 - Bias DM = **−0.000285**
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Wyjaśnia, skąd **systematyczne zaniżenie** V(π_uniform) przez DM (bias
+−0.000285): model nagrody ekstrapoluje poza dane treningowe. Dla polityki
+uniform — która „widzi” wszystkie akcje równo — błąd jest mały; dla innej
+π_eval (np. tylko top produkty) byłby większy.
+
 ---
 
 ## Slajd 8 — IPS — model propensity P(a|s) i kalibracja
@@ -312,6 +405,12 @@ Ustanawia **drugi filar** projektu (po reward modelu z DM) — model
 propensity. Kalibracja jest tu kluczowa, bo IPS dzieli przez P(a|s) —
 źle skalibrowany model propensity może dawać systematycznie zniekształcone
 wagi, nawet jeśli "ranking" akcji jest w miarę poprawny.
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+IPS potrzebuje wiedzieć P(a|s) pod **starą** polityką logującą, żeby przeskalować
+obserwacje do π_uniform. Kalibracja P(a|s) mówi, czy wagi π_uniform/π_old są
+wiarygodne — bez tego odpowiedź na „ile da uniform?” byłaby zepsuta już na
+etapie mianownika w IPS.
 
 ---
 
@@ -351,6 +450,12 @@ spada do 11%.
 - ESS = **9877/10000 = 98.77%**
 - V_IPS = **0.004423**
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Dla π_uniform (π_new = 1/80) i logów ~Random wagi ≈ 1 → IPS daje **stabilną**
+odpowiedź **V_IPS ≈ 0.0044** ≈ V\* bez eksplozji wariancji. To pokazuje
+„łatwy” przypadek OPE: gdy nowa polityka (uniform) jest bliska tej, która
+zbierała logi, pytanie o uniform da się uczciwie oszacować przez IPS.
+
 ---
 
 ## Slajd 10 — Clipping — tradeoff bias-variance
@@ -379,6 +484,11 @@ się psuje, wariancja eksploduje bez ostrzeżenia.
 
 **Kluczowe liczby:**
 - Klif clippingu przy λ > **0.016** (zeruje wszystkie wagi w OBD)
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Przy π_uniform na OBD clipping prawie **nie jest potrzebny** (wagi ~1). Slajd
+pokazuje narzędzie na wypadek, gdy π_eval odbiega od logów — np. gdyby uniform
+wymuszał wysokie wagi na akcjach, których stara polityka nigdy nie wybierała.
 
 ---
 
@@ -418,14 +528,20 @@ dodatkową "siatkę bezpieczeństwa" w postaci reward modelu.
 - max waga: **1.32 → 124.4**
 - V_IPS: **0.004423 → 0.021314** (≈ **5×**)
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Kontrast: dla π_uniform overlap jest dobry (ESS ≈ 99%) — odpowiedź **0.0044**
+jest wiarygodna. Symulacja pokazuje: gdyby π_uniform wymagała akcji z martwych
+stref logów (niskie π_old), **ta sama odpowiedź skoczyłaby ~5×** mimo że
+prawdziwa V(π_uniform) się nie zmieniła.
+
 ---
 
-## Slajd 12 — Doubly Robust — state of the art w OPE
+## Slajd 12 — Doubly Robust — Doubly Robust
 
 **Co jest na slajdzie:** Wykres `14_dr_robustness.png` + formuła
 V_DR = V_IPS + E[(r−f(s,a))×π_new/π_old] + tabela trzech scenariuszy:
-Baseline (oba modele OK) → 0.004223 ≈ V*; Zły PS model → 0.003818 ≈ V* ✅;
-Zły reward model (stały 0.5) → −0.024 ❌.
+Baseline (oba modele OK) → 0.004223 ≈ V*; Zły PS model → 0.003818 ≈ V*;
+Zły reward model (stały 0.5) → −0.024 nie.
 
 **Co mówić:**
 "Doubly Robust łączy DM i IPS: bierze IPS jako bazę i dodaje korektę z DM
@@ -438,11 +554,11 @@ Pokazuję trzy scenariusze:
 - **Baseline** (oba modele takie, jak na poprzednich slajdach): V_DR =
   0.004223 ≈ V\*.
 - **Zły model propensity** (zastępuję go losowymi pscores): V_DR =
-  **0.003818 ≈ V\*** ✅ — DR 'ratuje się' dzięki temu, że reward model
+  **0.003818 ≈ V\*** — DR 'ratuje się' dzięki temu, że reward model
   (mimo niskiego AUC-PR, jak widzieliśmy na slajdzie 6) wciąż wnosi
   użyteczną korektę średniej.
 - **Katastrofalnie zły reward model** (stała predykcja 0.5, czyli 50% CTR
-  zamiast prawdziwych ~0.4%): V_DR = **−0.024** ❌ — DR *nie* jest w stanie
+  zamiast prawdziwych ~0.4%): V_DR = **−0.024** nie — DR *nie* jest w stanie
   tego naprawić. To 100× za duża wartość bezwzględna i wynik wychodzi
   ujemny (co samo w sobie jest niemożliwym wynikiem dla CTR — czytelny
   sygnał alarmowy)."
@@ -459,8 +575,13 @@ toleruje drugiego.
 
 **Kluczowe liczby:**
 - Baseline: V_DR = **0.004223** ≈ V*
-- Zły PS model: V_DR = **0.003818** ≈ V* ✅
-- Zły reward model (stały 0.5): V_DR = **−0.024** ❌
+- Zły PS model: V_DR = **0.003818** ≈ V*
+- Zły reward model (stały 0.5): V_DR = **−0.024** nie
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+DR daje **najbardziej odporną** odpowiedź na pytanie o V(π_uniform): gdy model
+propensity zawiedzie, ratuje reward model (V_DR ≈ 0.0038). To ważne, bo w
+realu π_uniform może odbiegać od logów mocniej niż w tym „łatwym” OBD setupie.
 
 ---
 
@@ -499,6 +620,12 @@ pod slajd 14, który wyjaśni *skąd* bierze się ta różnica w szerokości CI
 - V* = **0.0038**
 - CI width: DM = **0.000019**, IPS = **0.002226** (117× szersze niż DM)
 - Wszystkie 4 estymatory: V* ∈ 95% CI
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Zbiorcza odpowiedź: **„ile da polityka uniform?”** — wszystkie cztery metody
+dają **~0.0035–0.0044**, a V\* = 0.0038 leży w każdym CI. Różnica to
+**pewność** odpowiedzi (wąski CI DM vs szeroki IPS), nie kierunek „czy uniform
+jest lepszy od BTS”.
 
 ---
 
@@ -541,14 +668,20 @@ ESS i wagi ≈1 dla IPS (slajd 9) + kruchość przy naruszeniu overlap (slajd 11
 - IPS: Variance = **4.5e-7** — dominująca składowa
 - SNIPS redukuje wariancję IPS o ok. **15%**
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Tłumaczy, **dlaczego** przy tym samym pytaniu o V(π_uniform) DM wygląda
+„najlepiej” (niskie MSE), a IPS „najgorzej” (wysoka wariancja) — to nie znaczy,
+że DM lepiej zna produkty, tylko że inaczej rozłożył błąd przy uśrednianiu
+po 80 akcjach z wagą 1/80.
+
 ---
 
 ## Slajd 15 — Sensitivity Analysis — czy wynik jest kauzalny czy przypadkowy?
 
 **Co jest na slajdzie:** Wykres `15_sensitivity_refutations.png` + tabela
-3 testów refutacji DoWhy: Random Common Cause (ATE=−0.003940, p=0.392 ✅),
-Placebo Treatment (ATE=−0.000229 ✅), Data Subset 80% (ATE=−0.003936,
-p=0.485 ✅). Original ATE = −0.003924.
+3 testów refutacji DoWhy: Random Common Cause (ATE=−0.003940, p=0.392 tak),
+Placebo Treatment (ATE=−0.000229 tak), Data Subset 80% (ATE=−0.003936,
+p=0.485 tak). Original ATE = −0.003924.
 
 **Co mówić:**
 "Do tej pory mierzyliśmy *dokładność* estymatorów względem znanego V*. Ale
@@ -562,12 +695,12 @@ zwiększa CTR względem innych akcji):
 
 1. **Random Common Cause** — dodaję do modelu losową, niezwiązaną zmienną.
    Jeśli wynik jest prawdziwie przyczynowy, ATE powinno pozostać stabilne.
-   Wynik: ATE = −0.003940, p = 0.392 ✅ — stabilne.
+   Wynik: ATE = −0.003940, p = 0.392 — stabilne.
 2. **Placebo Treatment** — zastępuję prawdziwy treatment losowym szumem.
    Jeśli efekt był 'prawdziwy', powinien zniknąć dla placebo. Wynik:
-   ATE = −0.000229 (≈ 0) ✅ — efekt rzeczywiście znika.
+   ATE = −0.000229 (≈ 0) — efekt rzeczywiście znika.
 3. **Data Subset (80%)** — uruchamiam całą analizę na losowym 80% danych.
-   Wynik powinien być zbliżony do oryginalnego. ATE = −0.003936, p = 0.485 ✅
+   Wynik powinien być zbliżony do oryginalnego. ATE = −0.003936, p = 0.485
    — stabilne.
 
 Wszystkie trzy testy przechodzą — model kauzalny jest odporny."
@@ -584,6 +717,11 @@ refutacji są stosowane później w pilocie StatsBomb (slajdy 16–17), gdzie
 - Random Common Cause: p = **0.392** (>0.05, stabilne)
 - Placebo Treatment: ATE → **−0.000229** (≈ 0, efekt znika)
 - Data Subset (80%): p = **0.485** (stabilne)
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Uzupełnia odpowiedź na π_uniform: nie tylko „ile?” (V\*), ale „czy różnice
+między akcjami są **przyczynowe**?” — testy DoWhy na OBD. Dla π_uniform
+(średnia po akcjach) to dodatkowa warstwa zaufania, że V̂ nie jest artefaktem.
 
 ---
 
@@ -618,6 +756,12 @@ dane wejściowe do wyników OPE na slajdzie 17.
 - Treatment (progressive pass): **37%** wszystkich podań
 - Outcome (shot/goal assist): **1.84%** nagród
 - Evaluation policy: aggressive — **50%** progressive passes
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+**Inne pytanie niż π_uniform** — tu π_eval = polityka **aggressive** (50%
+progressive passes), nie równy rozkład produktów. Slajd pokazuje, że ten sam
+pipeline OPE działa poza e-commerce; pytanie brzmi: „czy więcej progresywnych
+podań dałoby więcej sytuacji strzeleckich?”
 
 ---
 
@@ -661,9 +805,96 @@ danych — co prowadzi do "dalszych kroków" na ostatnim slajdzie.
 - ESS = **0.686** (vs 0.989 w OBD)
 - Potrzeba ≥ **100 meczów** dla wąskich CI
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Brak ground truth jak przy π_uniform — odpowiedź: „aggressive **nie jest
+jednoznacznie lepsza**” (DR ≈ naive). Kontrast z OBD: tam znaliśmy V(π_uniform);
+tu tylko CI i ESS mówią, że **nie wiemy** z 20 meczów, czy 50% progressive
+podań pomaga.
+
 ---
 
-## Slajd 18 — Wnioski — kiedy używać DM, IPS, DR?
+## Slajd 18 — Walidacja syntetyczna — czy DR≈naive w StatsBomb to sygnał czy artefakt?
+
+**Co jest na slajdzie:** Wykres `synthetic_validation.png`
+(`figures/week12/synthetic_validation.png`, 5 paneli A–E, słupki V̂±95% CI dla
+DM/IPS/SNIPS/DR z liniami referencyjnymi V* (czerwona przerywana) i V_naive
+(szara kropkowana)) + tabela wyników:
+
+| Scenariusz | ESS | Δ=V*−V_naive | DR V̂ | DR 95% CI | naive w CI? | V* w CI? |
+|---|---|---|---|---|---|---|
+| A. Dobry overlap, Δ=0 | 0.926 | 0.0000 | 0.02155 | [0.01955, 0.02391] | tak | tak |
+| B. Dobry overlap, Δ=duży | 0.926 | +0.0121 | 0.06744 | [0.06425, 0.07073] | nie | tak |
+| C. StatsBomb overlap, Δ=0 | 0.706 | 0.0000 | 0.02162 | [0.01928, 0.02384] | tak | tak |
+| D. StatsBomb overlap, Δ=mały | 0.706 | +0.0012 | 0.03241 | [0.02960, 0.03535] | tak | tak |
+| E. StatsBomb overlap, Δ=duży | 0.706 | +0.0060 | 0.06652 | [0.06278, 0.07037] | nie | tak |
+
+**Co mówić:**
+"Slajd 17 zostawił otwarte pytanie: DR = 1.79% [1.31%, 2.27%] vs naive = 1.93%
+— DR jest blisko baseline'u i CI zawiera naive. Czy to znaczy, że agresywna
+polityka *naprawdę* nie różni się od obserwowanej (efekt ≈ 0), czy może
+estymator po prostu **nie jest w stanie wykryć efektu** przy ESS = 0.686
+i zawsze zwróci coś bliskiego naive, niezależnie od prawdy?
+
+Żeby to rozstrzygnąć, zbudowałem **walidację syntetyczną** (`14_synthetic_validation.ipynb`,
+T12): generuję dane, w których prawdziwa nagroda, prawdziwa polityka logująca
+i tym samym **V\* oraz V_naive są znane z konstrukcji** — a cały pipeline
+(propensity model, reward model XGBoost, DM/IPS/SNIPS/DR, bootstrap CI)
+jest identyczny jak w pilocie StatsBomb. Testuję 5 scenariuszy: overlap
+'dobry' (ESS≈0.93, jak w OBD) vs 'jak StatsBomb' (ESS≈0.71, dopasowany do
+ESS=0.686), skrzyżowany z prawdziwym efektem Δ=V\*−V_naive ∈ {zero, mały, duży}.
+
+Najpierw sanity check: w scenariuszu 'oracle' (prawdziwe, nie estymowane
+P_b i p(X,T)) DM = V\* dokładnie, a IPS/SNIPS/DR odchylone o mniej niż 0.0006
+— **formuły są poprawne**, błąd to czysty szum próbkowania.
+
+Teraz kluczowe porównanie — scenariusze **C i E mają identyczny ESS = 0.706**
+(czyli prawie identyczny jak StatsBomb = 0.686), ale różny prawdziwy efekt:
+- **C** (Δ=0): DR V̂ = 0.02162, CI = [0.01928, 0.02384] — **zawiera naive**.
+- **E** (Δ=duży, +0.006): DR V̂ = 0.06652, CI = [0.06278, 0.07037] — **wyklucza naive**.
+
+Czyli przy overlapie takim jak w StatsBomb, gdy prawdziwy efekt jest duży,
+estymator **go wykrywa** (CI nie zawiera naive). 'DR≈naive' nie jest więc
+strukturalnym artefaktem niskiego ESS — estymator ma moc.
+
+A teraz scenariusz **D** (Δ=mały=+0.0012, ESS=0.706): DR V̂ = 0.03241,
+CI = [0.02960, 0.03535] — **zawiera zarówno V\* jak i naive**, punkt blisko
+naive. To jest **dokładnie wzorzec ze StatsBomb**. I to jest sedno: na
+podstawie samego wyniku StatsBomb **nie da się odróżnić** 'efekt = 0' (jak C)
+od 'mały, niewykryty efekt' (jak D) — obie hipotezy są zgodne z danymi przy
+n≈19k podań i ESS=0.686.
+
+Wniosek dla StatsBomb: DR=1.79% vs naive=1.93% **nie jest dowodem awarii
+estymatora** — to spodziewany wynik, gdy prawdziwy efekt jest zerowy lub mały
+względem szumu. Scenariusz E pokazał, że gdyby efekt był duży, ten sam
+pipeline by go wykrył. Żeby rozstrzygnąć 'zero' vs 'mały efekt', potrzeba
+więcej danych (≥100 meczów) — to zwiększa moc, nie zmienia metody."
+
+**Czego to uczy / Cel slajdu:**
+To jest **metodologiczna kontrola jakości** całego pipeline'u — odpowiada
+wprost na pytanie, które słuchacz mógł sobie zadać po slajdzie 17: 'czy te
+liczby w ogóle coś znaczą, czy to estymator po prostu zawsze zwraca coś
+zbliżonego do naive?'. Pokazuje, że pipeline **ma moc statystyczną** przy
+realistycznym overlapie (ESS≈0.7) i że niejednoznaczny wynik StatsBomb jest
+**uczciwym odzwierciedleniem niepewności przy n≈19k**, a nie ukrytą wadą
+metody. To wzmacnia wiarygodność całego projektu — pokazuje, że autor
+przetestował własne narzędzie na danych o znanej prawdzie, zanim zaufał mu
+na danych bez ground truth.
+
+**Kluczowe liczby:**
+- Oracle check: DM = V\* dokładnie, IPS/SNIPS/DR odchylone o < 0.0006 — formuły poprawne
+- C i E: ten sam ESS=0.706 (≈ StatsBomb 0.686), różny wynik (CI zawiera naive vs wyklucza naive) → estymator ma moc detekcji
+- D (Δ=+0.0012, ESS=0.706) odtwarza dokładnie wzorzec StatsBomb (CI zawiera V\* i naive)
+- Wniosek: StatsBomb DR≈naive = "efekt≈0 lub mały", nie awaria estymatora
+
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Metoda walidacji z **znanym V\*** (jak przy π_uniform w OBD), ale na danych
+syntetycznych ze złym overlapem. Pokazuje: gdy mamy ground truth (jak dla
+π_uniform), pipeline **odróżnia** „efekt = 0” od „efekt duży” — więc narzędzia
+z OBD są godne zaufania także bez V\* (StatsBomb).
+
+---
+
+## Slajd 19 — Wnioski — kiedy używać DM, IPS, DR?
 
 **Co jest na slajdzie:** Tabela porównawcza trzech metod (PRO/CON):
 Direct Method (PRO: najniższe MSE, wąskie CI; CON: bias systematyczny przy
@@ -707,6 +938,12 @@ problemu. Świadomie odsyła do konkretnych wcześniejszych slajdów (5–7, 11,
 12), żeby decyzja była oparta na *zaobserwowanych* w tej prezentacji
 zjawiskach, a nie na ogólnikach z literatury.
 
+**Co daje pytanie o π_uniform na tym slajdzie:**
+Podsumowuje **odpowiedź na główne pytanie OBD**: V(π_uniform) ≈ 0.38% CTR;
+najpewniej szacuje DM (wąski CI), najuczciwiej w sensie założeń IPS/DR (gdy
+overlap słabszy). W produkcji: najpierw zdefiniuj π_eval (tu: uniform), potem
+dobierz estymator — nie odwrotnie.
+
 ---
 
 ## Appendix — szybkie odpowiedzi na pytania
@@ -723,5 +960,8 @@ zjawiskach, a nie na ogólnikach z literatury.
 | ESS w StatsBomb? | 68.6% |
 | DR kiedy działa? | Gdy choć jeden model (PS lub reward) jest "wystarczająco dobry" |
 | DR kiedy nie działa? | Gdy reward model jest stały (0.5) → DR = −0.024 |
-| Notebooki kluczowe? | `09_overlap_ess`, `10_bias_variance` (T8 — finalny model), `11_doubly_robust`, `13_statsbomb_pilot` |
+| Czy DR≈naive w StatsBomb (1.79% vs 1.93%) to wada estymatora? | Nie — walidacja syntetyczna (slajd 18, T12) pokazuje, że przy ESS≈0.7 (jak StatsBomb) estymator wykrywa duże efekty (scenariusz E), więc to raczej "efekt≈0 lub mały", nie awaria |
+| Co to walidacja syntetyczna? | Symulacja z **znanym** V* i V_naive (z konstrukcji), na której uruchamiamy ten sam pipeline DM/IPS/SNIPS/DR co na realnych danych — `14_synthetic_validation.ipynb` |
+| Czy formuły DM/IPS/SNIPS/DR są poprawne? | Tak — oracle check (prawdziwe P_b, p(X,T)): DM=V* dokładnie, IPS/SNIPS/DR odchylone o <0.0006 |
+| Notebooki kluczowe? | `09_overlap_ess`, `10_bias_variance` (T8 — finalny model), `11_doubly_robust`, `13_statsbomb_pilot`, `14_synthetic_validation` (T12) |
 | Reprodukcja? | `uv sync && uv run jupyter lab` |

@@ -1,10 +1,9 @@
-"""Propensity score model utilities — Week 5."""
+"""Model propensity P(a|s) i diagnostyka overlap."""
 
 from __future__ import annotations
 
 import os
 
-# Reduce flaky OpenMP segfaults on macOS when XGBoost is imported after numpy/sklearn.
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("MKL_NUM_THREADS", "1")
@@ -13,12 +12,11 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 
-# First 20 user features are shared between random (20-d) and bts (22-d) in OBD small set.
 OBD_COMMON_CONTEXT_DIM = 20
 
 
 def align_context(context: np.ndarray, n_features: int = OBD_COMMON_CONTEXT_DIM) -> np.ndarray:
-    """Slice to common context dimension across OBD policies."""
+    """Wspólne 20 cech kontekstu (random 20-d, bts 22-d)."""
     if context.shape[1] < n_features:
         raise ValueError(
             f"Context has {context.shape[1]} features, expected at least {n_features}"
@@ -33,7 +31,7 @@ def train_propensity_model(
     random_state: int = 42,
     n_features: int = OBD_COMMON_CONTEXT_DIM,
 ) -> XGBClassifier:
-    """Train P(a|s) — 80-class softmax classifier."""
+    """XGBoost multiclass — P(a|s)."""
     X = align_context(context, n_features)
     y = np.asarray(action, dtype=np.int32)
 
@@ -69,7 +67,7 @@ def extract_propensity_scores(
     action: np.ndarray,
     n_features: int = OBD_COMMON_CONTEXT_DIM,
 ) -> np.ndarray:
-    """Return P(a_i | s_i) for each observed (context, action) pair."""
+    """P(a_i | s_i) dla zaobserwowanych par."""
     X = align_context(context, n_features)
     y = np.asarray(action, dtype=np.int32)
     proba = model.predict_proba(X)
@@ -86,7 +84,7 @@ def propensity_calibration_curve(
     n_bins: int = 10,
     n_features: int = OBD_COMMON_CONTEXT_DIM,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Reliability diagram for top-1 action: confidence vs hit-rate."""
+    """Krzywa kalibracji top-1 akcji."""
     from sklearn.calibration import calibration_curve
 
     X = align_context(context, n_features)
@@ -99,7 +97,7 @@ def propensity_calibration_curve(
 
 
 def effective_sample_size(weights: np.ndarray) -> tuple[float, float]:
-    """Compute ESS and ESS ratio for importance weights."""
+    """ESS i ESS/n."""
     w = np.asarray(weights, dtype=np.float64)
     ess = float(w.sum() ** 2) / float((w**2).sum())
     return ess, ess / len(w)
@@ -111,7 +109,7 @@ def overlap_diagnostics(
     pi_eval: float,
     n_actions: int = 80,
 ) -> dict:
-    """Compute overlap diagnostics for propensity scores."""
+    """Statystyki overlap: pscore, wagi IPS, ESS."""
     pscores = np.asarray(pscores, dtype=np.float64)
     action = np.asarray(action, dtype=np.int32)
     weights = pi_eval / np.clip(pscores, 1e-9, None)

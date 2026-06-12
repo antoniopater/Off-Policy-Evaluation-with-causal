@@ -1,7 +1,4 @@
-"""Evaluation helpers: MSE, Bias², Variance decomposition, bootstrap CI.
-
-Week 8 — unified benchmark for DM vs IPS vs SNIPS.
-"""
+"""Bootstrap, dekompozycja MSE i unified benchmark."""
 
 from __future__ import annotations
 
@@ -14,19 +11,8 @@ def bootstrap_estimates(
     random_state: int = 42,
     **kwargs,
 ) -> np.ndarray:
-    """Run an estimator on n_bootstrap resamples of the data.
-
-    Args:
-        estimator_fn: callable(**kwargs) -> float
-        n_bootstrap:  number of bootstrap resamples
-        random_state: seed
-        **kwargs:     arrays to resample (must share first axis = n_rounds)
-
-    Returns:
-        (n_bootstrap,) array of bootstrap estimates
-    """
+    """Bootstrap estymatora (wspólna oś = n_rounds w kwargs)."""
     rng = np.random.default_rng(random_state)
-    # Determine n from the first array kwarg
     n = next(len(v) for v in kwargs.values() if hasattr(v, "__len__"))
     estimates = []
     for _ in range(n_bootstrap):
@@ -40,15 +26,7 @@ def bias_variance_mse(
     estimates: np.ndarray,
     ground_truth: float,
 ) -> dict[str, float]:
-    """Decompose MSE = Bias² + Variance.
-
-    Args:
-        estimates:    (n_bootstrap,) bootstrap estimates of policy value
-        ground_truth: true policy value V*
-
-    Returns:
-        dict with keys: mean, bias, bias2, variance, mse, rmse, std, ci_lower, ci_upper
-    """
+    """MSE = Bias² + Variance względem ground_truth."""
     mean_est = float(np.mean(estimates))
     bias = mean_est - ground_truth
     bias2 = bias ** 2
@@ -78,21 +56,7 @@ def unified_benchmark(
     n_bootstrap: int = 200,
     random_state: int = 42,
 ) -> dict[str, dict]:
-    """Run DM, IPS, SNIPS bootstrap decomposition and return unified results.
-
-    Args:
-        reward:           (n,) observed rewards
-        pscore_log:       (n,) P(a|s) under logging policy
-        expected_reward:  (n,) reward model predictions f(s, a_logged)
-        action:           (n,) logged actions
-        pi_eval:          scalar evaluation policy probability
-        ground_truth:     V* — true policy value for bias calculation
-        n_bootstrap:      number of bootstrap resamples
-        random_state:     seed
-
-    Returns:
-        dict keyed by estimator name, each containing bias_variance_mse result
-    """
+    """DM, IPS, SNIPS — bootstrap + bias/variance/MSE."""
     from src.estimators import ips_with_clipping, snips_estimate
 
     def dm_fn(reward, expected_reward, **_):
